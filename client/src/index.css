@@ -1,0 +1,131 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@400;500;600;700&display=swap');
+@import 'leaflet/dist/leaflet.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Eco-friendly Palette: Fresh Greens, Clean Blues, Soft Neutrals */
+  
+  /* Background: Very subtle cool gray/mint tint */
+  --background: 210 20% 98%;
+  --foreground: 222 47% 11%;
+
+  /* Primary: Vibrant Emerald/Teal */
+  --primary: 160 84% 39%;
+  --primary-foreground: 210 40% 98%;
+
+  /* Secondary: Soft Sky/Air Blue */
+  --secondary: 199 89% 48%;
+  --secondary-foreground: 210 40% 98%;
+
+  /* Cards: White */
+  --card: 0 0% 100%;
+  --card-foreground: 222 47% 11%;
+
+  /* Muted elements */
+  --muted: 210 40% 96%;
+  --muted-foreground: 215 16% 47%;
+
+  /* Accents */
+  --accent: 160 84% 39%;
+  --accent-foreground: 210 40% 98%;
+
+  /* Destructive */
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 210 40% 98%;
+
+  /* Borders */
+  --border: 214 32% 91%;
+  --input: 214 32% 91%;
+  --ring: 160 84% 39%;
+
+  /* Radius */
+  --radius: 0.75rem;
+
+  /* Custom fonts */
+  --font-display: 'Outfit', sans-serif;
+  --font-body: 'Inter', sans-serif;
+}
+
+.dark {
+  --background: 222 47% 11%;
+  --foreground: 210 40% 98%;
+  --card: 217 33% 17%;
+  --card-foreground: 210 40% 98%;
+  --popover: 222 47% 11%;
+  --popover-foreground: 210 40% 98%;
+  --primary: 160 60% 45%;
+  --primary-foreground: 222 47% 11%;
+  --secondary: 199 60% 50%;
+  --secondary-foreground: 210 40% 98%;
+  --muted: 217 33% 17%;
+  --muted-foreground: 215 20% 65%;
+  --accent: 217 33% 17%;
+  --accent-foreground: 210 40% 98%;
+  --destructive: 0 62% 30%;
+  --destructive-foreground: 210 40% 98%;
+  --border: 217 33% 17%;
+  --input: 217 33% 17%;
+  --ring: 160 60% 45%;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground antialiased font-body;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-display tracking-tight font-bold;
+  }
+}
+
+/* Custom Gradients */
+.bg-gradient-eco {
+  @apply bg-gradient-to-br from-emerald-500 to-teal-600;
+}
+.bg-gradient-air {
+  @apply bg-gradient-to-br from-sky-400 to-blue-500;
+}
+.text-gradient-eco {
+  @apply bg-clip-text text-transparent bg-gradient-to-r from-emerald-600 to-teal-600;
+}
+
+/* Glassmorphism utilities */
+.glass-panel {
+  @apply bg-white/70 backdrop-blur-md border border-white/20 shadow-xl;
+}
+
+.dark .glass-panel {
+  @apply bg-black/40 backdrop-blur-md border border-white/10 shadow-xl;
+}
+
+/* Custom Map Marker Styles */
+.custom-circular-marker {
+  background: transparent !important;
+  border: none !important;
+}
+
+.custom-circular-marker .marker-circle {
+  cursor: pointer;
+}
+
+.custom-circular-marker:hover .marker-circle {
+  transform: scale(1.15);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.4) !important;
+}
+
+.leaflet-tooltip {
+  background-color: rgba(255, 255, 255, 0.95) !important;
+  border: 1px solid rgba(0, 0, 0, 0.1) !important;
+  border-radius: 6px !important;
+  padding: 6px 10px !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15) !important;
+}
+
+.leaflet-tooltip-top:before {
+  border-top-color: rgba(255, 255, 255, 0.95) !important;
+}

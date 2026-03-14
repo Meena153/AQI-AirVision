@@ -1,0 +1,24 @@
+# env / secrets
+.env
+.env.*
+*.env
+
+# node
+node_modules/
+dist/
+build/
+
+# python
+.venv/
+__pycache__/
+*.pyc
+
+# logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
