@@ -18,6 +18,7 @@ import Login from "@/pages/Login";
 import Signup from "@/pages/Signup";
 import Profile from "@/pages/Settings";
 import AQIMap from "@/pages/AQIMap";
+import Forecast from "@/pages/Forecast";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -32,6 +33,7 @@ function Router() {
       <Route path="/trip-planner" component={TripPlanner} />
       <Route path="/health" component={Health} />
       <Route path="/report" component={Report} />
+      <Route path="/forecast" component={Forecast} />
       <Route path="/profile" component={Profile} />
       <Route path="/about" component={About} />
       <Route component={NotFound} />

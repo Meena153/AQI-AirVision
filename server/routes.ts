@@ -1,6 +1,6 @@
 import type { Express } from "express";
 import type { Server } from "http";
-import { storage } from "./storage";
+import { storage, saveAQIHistory } from "./storage";
 import { api } from "@shared/routes";
 import { z } from "zod";
 import bcrypt from "bcryptjs";
@@ -523,11 +523,12 @@ export async function registerRoutes(
         return res.status(400).json({ message: "Latitude/Longitude or City required" });
       }
 
-      const displayName = (name as string) || undefined;
+      const displayName = (name as string) || (city as string) || undefined;
       
-      // Important: Only use city name for AQI lookup when it was geocoded (not when exact coordinates were provided)
-      // This ensures saved locations with exact coordinates always use geo-based lookup for consistency
-      const aqiLookupName = (city && !req.query.lat && !req.query.lon) ? city as string : undefined;
+      // Allow city/name to be used for AQI lookup even if coordinates are provided
+      // This ensures we get the official station for major cities ("Hyderabad" -> Zoo Park)
+      // instead of the nearest random station to the coordinates, providing consistency.
+      const aqiLookupName = (city as string) || undefined;
       
       console.log(`  Fetching air quality and weather data...`);
       console.log(`  AQI lookup strategy: ${aqiLookupName ? `city-based (${aqiLookupName})` : 'geo-based (coordinates only)'}`);
@@ -535,6 +536,28 @@ export async function registerRoutes(
       try {
         const data = await fetchAirQualityAndWeather(Number(lat), Number(lon), aqiLookupName, displayName);
         console.log(`  ✅ Successfully returned data for: ${data.location}\n`);
+        
+        // Save AQI History if locationId is provided
+        const locationId = req.query.locationId ? Number(req.query.locationId) : undefined;
+        if (locationId && !isNaN(locationId)) {
+          try {
+            await saveAQIHistory({
+              locationId,
+              recordedAt: new Date(),
+              aqi: data.airQuality.aqi,
+              pm2_5: data.airQuality.iaqi?.pm25?.v,
+              pm10: data.airQuality.iaqi?.pm10?.v,
+              co: data.airQuality.iaqi?.co?.v,
+              no2: data.airQuality.iaqi?.no2?.v,
+              so2: data.airQuality.iaqi?.so2?.v,
+              o3: data.airQuality.iaqi?.o3?.v,
+            });
+            console.log(`  ✅ Saved AQI history for location ${locationId}`);
+          } catch (historyErr) {
+            console.error("Failed to save AQI history:", historyErr);
+          }
+        }
+        
         res.json(data);
       } catch (err) {
         console.error(`  ❌ Error fetching air quality and weather for ${lat}, ${lon}:`, err);
@@ -561,7 +584,10 @@ export async function registerRoutes(
         return res.status(400).json({ message: "lat and lon are required" });
       }
 
-      const waqiApiKey = process.env.WAQI_API_KEY || 'ebc4daf97d33f3080307ce8bdc7e6f5e60f52344';
+      const waqiApiKey = process.env.WAQI_API_KEY;
+      if (!waqiApiKey) {
+        return res.status(500).json({ message: "WAQI API key not configured" });
+      }
 
       console.log(`\n🗺️  Searching for working AQI stations within ${radiusKm}km of (${lat.toFixed(4)},${lon.toFixed(4)})`);
 
@@ -682,7 +708,8 @@ export async function registerRoutes(
       const predictPast = req.query.predict_past === "true";
       const predictCurrent = req.query.predict_current === "true";
 
-      let url = `http://127.0.0.1:8000/forecast/${model}?hours=${hours}&predict_past=${predictPast}&predict_current=${predictCurrent}`;
+      const ML_URL = process.env.ML_SERVICE_URL || "http://127.0.0.1:8000";
+      let url = `${ML_URL}/forecast/${model}?hours=${hours}&predict_past=${predictPast}&predict_current=${predictCurrent}`;
       if (lat !== undefined && lon !== undefined) {
         url += `&lat=${lat}&lon=${lon}`;
       }

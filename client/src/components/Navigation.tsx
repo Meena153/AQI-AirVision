@@ -117,10 +117,11 @@
 //   );
 // }
 
+import { useState } from "react";
 import { Link, useLocation } from "wouter";
 import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
-import { Leaf, LayoutDashboard, Map, Activity, BarChart3, Info, LogOut, MapPin, User } from "lucide-react";
+import { Leaf, LayoutDashboard, Map, Activity, BarChart3, Info, LogOut, MapPin, User, Menu, X } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -134,6 +135,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 export function Navigation() {
   const [location] = useLocation();
   const { user, logout } = useAuth();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const navItems = [
     { href: "/", label: "Home", icon: Leaf },
@@ -146,7 +148,7 @@ export function Navigation() {
   ];
 
   return (
-    <nav className="sticky top-0 z-50 w-full border-b bg-white/80 backdrop-blur-md transition-all">
+    <nav className="sticky top-0 z-50 w-full border-b bg-white/80 backdrop-blur-md transition-all relative">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
           <Link
@@ -182,7 +184,7 @@ export function Navigation() {
             })}
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3">
             {user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -232,7 +234,7 @@ export function Navigation() {
                 <Link href="/signup">
                   <Button
                     variant="outline"
-                    className="rounded-full px-6 border-primary text-primary hover:bg-primary/10 transition-all"
+                    className="hidden sm:flex rounded-full px-6 border-primary text-primary hover:bg-primary/10 transition-all"
                   >
                     Signup
                   </Button>
@@ -242,38 +244,66 @@ export function Navigation() {
                 <Link href="/login">
                   <Button
                     variant="default"
-                    className="rounded-full px-6 bg-gradient-to-r from-primary to-emerald-600 shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 transition-all"
+                    className="rounded-full px-4 sm:px-6 bg-gradient-to-r from-primary to-emerald-600 shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 transition-all"
                   >
                     Login
                   </Button>
                 </Link>
               </>
             )}
+
+            <Button
+              variant="ghost"
+              size="icon"
+              className="md:hidden ml-1"
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            >
+              {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+            </Button>
           </div>
         </div>
       </div>
 
-      {/* Mobile Navigation */}
-      <div className="md:hidden border-t bg-white/90 backdrop-blur-sm overflow-x-auto">
-        <div className="flex p-2 gap-2 min-w-max">
-          {navItems.map((item) => {
-            const isActive = location === item.href;
-            return (
-              <Link key={item.href} href={item.href}>
-                <div
-                  className={`
-                    flex flex-col items-center justify-center p-3 rounded-xl min-w-[4.5rem] transition-colors
-                    ${isActive ? "bg-primary/10 text-primary" : "text-muted-foreground"}
-                  `}
-                >
-                  <item.icon className="h-5 w-5 mb-1" />
-                  <span className="text-[10px] font-medium">{item.label}</span>
-                </div>
-              </Link>
-            );
-          })}
+      {/* Mobile Navigation Dropdown */}
+      {isMobileMenuOpen && (
+        <div className="md:hidden border-t bg-white/95 backdrop-blur-md absolute w-full left-0 shadow-lg top-16">
+          <div className="flex flex-col p-4 gap-2">
+            {!user && (
+              <div className="flex flex-col sm:hidden gap-2 pb-4 border-b border-border/50 mb-2">
+                <Link href="/signup" onClick={() => setIsMobileMenuOpen(false)}>
+                  <Button
+                    variant="outline"
+                    className="w-full justify-center border-primary text-primary hover:bg-primary/10 transition-all"
+                  >
+                    Signup
+                  </Button>
+                </Link>
+              </div>
+            )}
+            {navItems.map((item) => {
+              const isActive = location === item.href;
+              return (
+                <Link key={item.href} href={item.href} onClick={() => setIsMobileMenuOpen(false)}>
+                  <div
+                    className={`
+                      flex items-center gap-4 px-4 py-3 rounded-xl text-base font-medium transition-colors
+                      ${
+                        isActive
+                          ? "bg-primary/10 text-primary font-semibold"
+                          : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                      }
+                    `}
+                  >
+                    <item.icon className="h-5 w-5" />
+                    {item.label}
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
         </div>
-      </div>
+      )}
     </nav>
   );
 }
+

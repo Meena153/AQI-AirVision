@@ -20,15 +20,6 @@ export const search_history = pgTable("search_history", {
   searchedAt: timestamp("searched_at").defaultNow(),
 });
 
-// === SCHEMAS ===
-// export const insertLocationSchema = createInsertSchema(saved_locations).omit({ id: true, createdAt: true });
-// export const insertHistorySchema = createInsertSchema(search_history).omit({ id: true, searchedAt: true });
-
-// === TYPES ===
-// export type SavedLocation = typeof saved_locations.$inferSelect;
-// export type InsertSavedLocation = z.infer<typeof insertLocationSchema>;
-// export type SearchHistory = typeof search_history.$inferSelect;
-// export type InsertSearchHistory = z.infer<typeof insertHistorySchema>;
 
 // === API TYPES ===
 export type AirQualityData = {
@@ -104,16 +95,7 @@ export type HistoricalAQIResponse = {
   data: HistoricalDataPoint[];
   count: number;
 };
-// import {
-//   pgTable,
-//   text,
-//   serial,
-//   timestamp,
-//   jsonb,
-//   doublePrecision,
-// } from "drizzle-orm/pg-core";
-// import { createInsertSchema } from "drizzle-zod";
-// import { z } from "zod";
+
 import { sql } from "drizzle-orm";
 
 // =======================
@@ -124,27 +106,10 @@ export const users = pgTable("users", {
   name: text("name").notNull(),
   email: text("email").notNull().unique(),
   passwordHash: text("password_hash").notNull(),
+  locationApiProvider: text("location_api_provider").default("nominatim"),
   createdAt: timestamp("created_at").default(sql`now()`),
 });
 
-// =======================
-// EXISTING TABLES
-// =======================
-// export const saved_locations = pgTable("saved_locations", {
-//   id: serial("id").primaryKey(),
-//   userId: text("user_id").notNull(), // links to users.id
-//   name: text("name").notNull(),
-//   lat: doublePrecision("lat").notNull(),
-//   lon: doublePrecision("lon").notNull(),
-//   createdAt: timestamp("created_at").defaultNow(),
-// });
-
-// export const search_history = pgTable("search_history", {
-//   id: serial("id").primaryKey(),
-//   userId: text("user_id").notNull(), // ✅ now required (only logged in users can access)
-//   query: text("query").notNull(),
-//   searchedAt: timestamp("searched_at").defaultNow(),
-// });
 
 // // =======================
 // // INSERT SCHEMAS
@@ -163,19 +128,7 @@ export const insertHistorySchema = createInsertSchema(search_history).omit({
   searchedAt: true,
 });
 
-// // =======================
-// // AUTH INPUT VALIDATION
-// // =======================
-// export const registerSchema = z.object({
-//   name: z.string().min(2, "Name is too short"),
-//   email: z.string().email("Invalid email"),
-//   password: z.string().min(6, "Password must be at least 6 characters"),
-// });
 
-// export const loginSchema = z.object({
-//   email: z.string().email("Invalid email"),
-//   password: z.string().min(1, "Password required"),
-// });
 
 // // =======================
 // // TYPES
@@ -189,61 +142,7 @@ export type InsertSavedLocation = z.infer<typeof insertLocationSchema>;
 export type SearchHistory = typeof search_history.$inferSelect;
 export type InsertSearchHistory = z.infer<typeof insertHistorySchema>;
 
-// // =======================
-// // API TYPES (UNCHANGED)
-// // =======================
-// export type AirQualityData = {
-//   aqi: number;
-//   city: string;
-//   dominentpol: string;
-//   iaqi: {
-//     pm25?: { v: number };
-//     pm10?: { v: number };
-//     o3?: { v: number };
-//     no2?: { v: number };
-//     so2?: { v: number };
-//     co?: { v: number };
-//     t?: { v: number }; // Temperature
-//     h?: { v: number }; // Humidity
-//     w?: { v: number }; // Wind
-//   };
-//   forecast: {
-//     daily: {
-//       o3?: { avg: number; day: string; max: number; min: number }[];
-//       pm10?: { avg: number; day: string; max: number; min: number }[];
-//       pm25?: { avg: number; day: string; max: number; min: number }[];
-//     };
-//   };
-// };
 
-// export type WeatherData = {
-//   temp: number;
-//   humidity: number;
-//   condition: string;
-//   windSpeed: number;
-//   icon: string;
-// };
-
-// export type CombinedAirData = {
-//   location: string;
-//   lat: number;
-//   lon: number;
-//   airQuality: AirQualityData;
-//   weather: WeatherData;
-// };
-
-// export type TripPlanRequest = {
-//   start: string;
-//   end: string;
-//   date?: string;
-// };
-
-// export type TripPlanResponse = {
-//   start: CombinedAirData;
-//   end: CombinedAirData;
-//   recommendation: string;
-// };
-// 
 // ✅ AQI History Table (Time-Series)
 export const aqiHistory = pgTable("aqi_history", {
   id: serial("id").primaryKey(),

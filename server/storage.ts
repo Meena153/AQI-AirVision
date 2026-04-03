@@ -47,7 +47,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   async updateUserSettings(id: string, settings: { locationApiProvider?: string }): Promise<void> {
-    await db.update(users).set(settings as any).where(eq(users.id, id));
+    await db.update(users).set(settings).where(eq(users.id, id));
   }
 
   async getSavedLocations(userId: string): Promise<SavedLocation[]> {

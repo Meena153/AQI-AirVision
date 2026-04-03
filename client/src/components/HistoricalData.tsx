@@ -298,39 +298,43 @@ export function HistoricalData({ lat, lon }: HistoricalDataProps) {
               transition={{ delay: 0.5 }}
               className="bg-white p-4 rounded-xl shadow-sm border border-slate-200/50"
             >
-              <ResponsiveContainer width="100%" height={300}>
-                <AreaChart data={chartData}>
-                  <defs>
-                    <linearGradient id="aqiGradient" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="#0d9488" stopOpacity={0.7} />
-                      <stop offset="100%" stopColor="#0d9488" stopOpacity={0.1} />
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-                  <XAxis 
-                    dataKey="time" 
-                    tick={{ fontSize: 12 }}
-                    stroke="#64748b"
-                  />
-                  <YAxis 
-                    tick={{ fontSize: 12 }}
-                    stroke="#64748b"
-                    label={{ value: 'AQI', angle: -90, position: 'insideLeft', style: { fontSize: 12 } }}
-                    domain={[0, 'auto']}
-                    allowDataOverflow={false}
-                  />
-                  <Tooltip content={<CustomTooltip />} />
-                  <Area
-                    type="monotone"
-                    dataKey="aqi"
-                    stroke="#0d9488"
-                    strokeWidth={2}
-                    fill="url(#aqiGradient)"
-                    dot={{ fill: "#0d9488", r: 3 }}
-                    activeDot={{ fill: "#0d9488", r: 5, strokeWidth: 0 }}
-                  />
-                </AreaChart>
-              </ResponsiveContainer>
+              <div className="w-full overflow-x-auto pb-4">
+                <div style={{ minWidth: '600px', height: '300px' }}>
+                  <ResponsiveContainer width="100%" height="100%">
+                    <AreaChart data={chartData}>
+                      <defs>
+                        <linearGradient id="aqiGradient" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="0%" stopColor="#0d9488" stopOpacity={0.7} />
+                          <stop offset="100%" stopColor="#0d9488" stopOpacity={0.1} />
+                        </linearGradient>
+                      </defs>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                      <XAxis 
+                        dataKey="time" 
+                        tick={{ fontSize: 12 }}
+                        stroke="#64748b"
+                      />
+                      <YAxis 
+                        tick={{ fontSize: 12 }}
+                        stroke="#64748b"
+                        label={{ value: 'AQI', angle: -90, position: 'insideLeft', style: { fontSize: 12 } }}
+                        domain={[0, 'auto']}
+                        allowDataOverflow={false}
+                      />
+                      <Tooltip content={<CustomTooltip />} />
+                      <Area
+                        type="monotone"
+                        dataKey="aqi"
+                        stroke="#0d9488"
+                        strokeWidth={2}
+                        fill="url(#aqiGradient)"
+                        dot={{ fill: "#0d9488", r: 3 }}
+                        activeDot={{ fill: "#0d9488", r: 5, strokeWidth: 0 }}
+                      />
+                    </AreaChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
               <div className="text-center mt-4">
                 <p className="text-xs text-muted-foreground">
                   {data.count} data points over {timeRange === "24hrs" ? "24 hours" : timeRange === "7days" ? "7 days" : "30 days"}

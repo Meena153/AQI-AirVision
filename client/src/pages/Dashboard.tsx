@@ -26,9 +26,9 @@ function LocationCard({ location, onDelete }: { location: any, onDelete: (id: nu
   // Fetch specific weather/air data for this location
   // Include city name in query to get consistent worst-case AQI
   const { data, isLoading, dataUpdatedAt } = useQuery({
-    queryKey: [api.weather.get.path, { lat: location.lat, lon: location.lon, city: location.name }],
+    queryKey: [api.weather.get.path, { lat: location.lat, lon: location.lon, city: location.name, locationId: location.id }],
     queryFn: async () => {
-      const res = await fetch(`${api.weather.get.path}?lat=${location.lat}&lon=${location.lon}&city=${encodeURIComponent(location.name)}`);
+      const res = await fetch(`${api.weather.get.path}?lat=${location.lat}&lon=${location.lon}&city=${encodeURIComponent(location.name)}&locationId=${location.id}`);
       if (!res.ok) throw new Error("Failed");
       return res.json();
     },

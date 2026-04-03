@@ -98,7 +98,10 @@ app.use((req, res, next) => {
   // );
   const port = parseInt(process.env.PORT || "3000", 10);
 
-httpServer.listen(port, () => {
+// httpServer.listen(port, () => {
+//   log(`serving on port ${port}`);
+// });
+httpServer.listen(port, "0.0.0.0", () => {
   log(`serving on port ${port}`);
 });
 

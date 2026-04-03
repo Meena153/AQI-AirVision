@@ -10,6 +10,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { MapPin, Navigation, Info, Locate, ArrowLeft } from 'lucide-react';
 import { Link, useLocation } from 'wouter';
 import { api } from '@shared/routes';
+import { useToast } from '@/hooks/use-toast';
 
 // Fix for default marker icons in Leaflet
 delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -299,6 +300,7 @@ function LocationMarkerOnMap({ location }: { location: LocationData }) {
 }
 
 export default function AQIMap() {
+  const { toast } = useToast();
   const { data: savedLocations, isLoading: locationsLoading } = useLocations();
   const [currentLocation, setCurrentLocation] = useState<{ lat: number; lon: number } | null>(null);
   const [mapCenter, setMapCenter] = useState<[number, number]>([17.385, 78.4867]); // Default to Hyderabad
@@ -451,6 +453,10 @@ export default function AQIMap() {
         setMapCenter([coords.lat, coords.lon]);
         setMapZoom(10); // Zoom closer for hyperlocal view
         setIsLocating(false);
+        toast({
+          title: "Location Accessed",
+          description: "Successfully updated map to your hyperlocal area.",
+        });
         // Force refetch of nearby stations
         setTimeout(() => refetch(), 100);
       },
@@ -459,16 +465,32 @@ export default function AQIMap() {
         setIsLocating(false);
         switch(error.code) {
           case error.PERMISSION_DENIED:
-            alert('Please allow location access to use this feature');
+            toast({
+              variant: "destructive",
+              title: "Permission Denied",
+              description: `Location access was denied. (${error.message}). Note: Mobile browsers require HTTPS to allow location sharing.`
+            });
             break;
           case error.POSITION_UNAVAILABLE:
-            alert('Location information is unavailable');
+            toast({
+              variant: "destructive",
+              title: "Position Unavailable",
+              description: `Location unavailable: ${error.message}`
+            });
             break;
           case error.TIMEOUT:
-            alert('Location request timed out');
+            toast({
+              variant: "destructive",
+              title: "Request Timeout",
+              description: "Location request timed out. Please try again."
+            });
             break;
           default:
-            alert('An error occurred while getting your location');
+            toast({
+              variant: "destructive",
+              title: "Error",
+              description: `Error: ${error.message}`
+            });
             break;
         }
       },
@@ -479,6 +501,23 @@ export default function AQIMap() {
       }
     );
   };
+
+  // Automatically attempt to locate if the user grants permission after a prompt
+  useEffect(() => {
+    if (navigator.permissions && navigator.permissions.query) {
+      navigator.permissions.query({ name: 'geolocation' }).then(result => {
+        result.onchange = () => {
+          if (result.state === 'granted') {
+            toast({
+              title: "Permission Granted",
+              description: "Location access enabled, locating you now...",
+            });
+            handleLocateMe();
+          }
+        };
+      }).catch(err => console.log('Permissions query not supported on this browser'));
+    }
+  }, []);
 
   return (
     <div className="container mx-auto p-6 max-w-7xl">
@@ -502,44 +541,44 @@ export default function AQIMap() {
           <div className="flex items-center justify-between flex-wrap gap-4">
             <div className="flex items-center gap-3 flex-wrap">
               <span className="text-sm font-semibold">AQI Legend:</span>
-              <Badge variant="outline" className="text-green-700 border-green-300">
-                <div className="w-2 h-2 bg-green-500 rounded-full mr-2" />
+              <Badge variant="outline" className="text-green-700 border-green-300 whitespace-nowrap">
+                <div className="w-2 h-2 bg-green-500 rounded-full mr-2 flex-shrink-0" />
                 Good (0-50)
               </Badge>
-              <Badge variant="outline" className="text-yellow-700 border-yellow-300">
-                <div className="w-2 h-2 bg-yellow-500 rounded-full mr-2" />
+              <Badge variant="outline" className="text-yellow-700 border-yellow-300 whitespace-nowrap">
+                <div className="w-2 h-2 bg-yellow-500 rounded-full mr-2 flex-shrink-0" />
                 Moderate (51-100)
               </Badge>
-              <Badge variant="outline" className="text-orange-700 border-orange-300">
-                <div className="w-2 h-2 bg-orange-500 rounded-full mr-2" />
+              <Badge variant="outline" className="text-orange-700 border-orange-300 whitespace-nowrap">
+                <div className="w-2 h-2 bg-orange-500 rounded-full mr-2 flex-shrink-0" />
                 Unhealthy (Sensitive) (101-150)
               </Badge>
-              <Badge variant="outline" className="text-red-700 border-red-300">
-                <div className="w-2 h-2 bg-red-500 rounded-full mr-2" />
+              <Badge variant="outline" className="text-red-700 border-red-300 whitespace-nowrap">
+                <div className="w-2 h-2 bg-red-500 rounded-full mr-2 flex-shrink-0" />
                 Unhealthy (151-200)
               </Badge>
-              <Badge variant="outline" className="text-purple-700 border-purple-300">
-                <div className="w-2 h-2 bg-purple-600 rounded-full mr-2" />
+              <Badge variant="outline" className="text-purple-700 border-purple-300 whitespace-nowrap">
+                <div className="w-2 h-2 bg-purple-600 rounded-full mr-2 flex-shrink-0" />
                 Severe (201-300)
               </Badge>
-              <Badge variant="outline" className="text-rose-900 border-rose-300">
-                <div className="w-2 h-2 bg-rose-900 rounded-full mr-2" />
+              <Badge variant="outline" className="text-rose-900 border-rose-300 whitespace-nowrap">
+                <div className="w-2 h-2 bg-rose-900 rounded-full mr-2 flex-shrink-0" />
                 Hazardous (301+)
               </Badge>
             </div>
-            <div className="flex gap-2 items-center">
+            <div className="flex flex-wrap gap-2 items-center w-full sm:w-auto mt-4 sm:mt-0">
               {nearbyLocations.length > 0 && (
-                <Badge className="text-sm bg-green-600 hover:bg-green-700 text-white px-4 py-2">
+                <Badge className="text-sm bg-green-600 hover:bg-green-700 text-white px-4 py-2 flex-shrink-0">
                   {nearbyLocations.length} stations found
                 </Badge>
               )}
               {hasAllCategories && nearbyLocations.length > 0 && (
-                <Badge className="text-sm bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2">
+                <Badge className="text-sm bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 flex-shrink-0">
                   ✓ All 5 categories present
                 </Badge>
               )}
               {!hasAllCategories && missingCategories.length > 0 && nearbyLocations.length > 0 && (
-                <Badge className="text-sm bg-amber-500 hover:bg-amber-600 text-white px-4 py-2" title={`Missing: ${missingCategories.join(', ')}`}>
+                <Badge className="text-sm bg-amber-500 hover:bg-amber-600 text-white px-4 py-2 flex-shrink-0" title={`Missing: ${missingCategories.join(', ')}`}>
                   {5 - missingCategories.length}/5 categories
                 </Badge>
               )}
@@ -548,6 +587,7 @@ export default function AQIMap() {
                 size="sm" 
                 variant="outline"
                 disabled={isLocating}
+                className="w-full sm:w-auto flex-shrink-0"
               >
                 <Locate className={`w-4 h-4 mr-2 ${isLocating ? 'animate-spin' : ''}`} />
                 {isLocating ? 'Locating...' : 'Locate Me/Hyperlocal area'}

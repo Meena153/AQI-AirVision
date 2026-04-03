@@ -26,7 +26,15 @@ export default function TripPlanner() {
     return dateParam ? new Date(dateParam) : undefined;
   });
   const [showRecommendation, setShowRecommendation] = useState(false);
+  const [isDesktop, setIsDesktop] = useState(false);
   const { mutate: planTrip, data: plan, isPending, error, reset: resetMutation } = useTripPlan();
+
+  useEffect(() => {
+    const checkDesktop = () => setIsDesktop(window.innerWidth >= 1024);
+    checkDesktop();
+    window.addEventListener("resize", checkDesktop);
+    return () => window.removeEventListener("resize", checkDesktop);
+  }, []);
 
   // Show recommendation dialog when plan data is received
   useEffect(() => {
@@ -154,7 +162,7 @@ export default function TripPlanner() {
                     <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start" side="bottom" sideOffset={4} style={{ zIndex: 9999 }}>
+                <PopoverContent className="w-auto p-0 bg-white border border-slate-200 shadow-2xl relative z-[99999]" align="start" side="bottom" sideOffset={4} style={{ zIndex: 99999 }}>
                   <Calendar
                     mode="single"
                     selected={date}
@@ -163,6 +171,7 @@ export default function TripPlanner() {
                       date < new Date(new Date().setHours(0, 0, 0, 0))
                     }
                     initialFocus
+                    className="bg-white rounded-md"
                   />
                 </PopoverContent>
               </Popover>
@@ -206,13 +215,15 @@ export default function TripPlanner() {
             animate={{ opacity: 1, y: 0 }}
             className="space-y-8"
           >
-            {/* Floating Recommendation Popup - Upper Right */}
+            {/* Floating Recommendation Popup - Upper Right (Inline on mobile) */}
             {showRecommendation && (
               <motion.div
-                initial={{ opacity: 0, x: 100, scale: 0.8 }}
+                initial={{ opacity: 0, lg: { x: 100 }, scale: 0.9 }}
                 animate={{ opacity: 1, x: 0, scale: 1 }}
-                exit={{ opacity: 0, x: 100, scale: 0.8 }}
-                className="fixed top-80 right-8 z-40 w-80 bg-white rounded-xl shadow-2xl border border-slate-200 overflow-hidden"
+                exit={{ opacity: 0, lg: { x: 100 }, scale: 0.9 }}
+                drag={isDesktop}
+                dragMomentum={false}
+                className={`static lg:fixed lg:top-32 lg:right-8 z-40 w-full lg:w-80 bg-white rounded-xl shadow-xl lg:shadow-2xl border border-slate-200 overflow-hidden ${isDesktop ? 'cursor-grab active:cursor-grabbing' : ''}`}
               >
                 <div className="bg-gradient-to-r from-blue-600 to-indigo-600 p-3 text-white">
                   <div className="flex items-center justify-between">

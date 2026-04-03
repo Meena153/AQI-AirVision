@@ -219,7 +219,9 @@ async function fetchCityWideAQI(cityName: string): Promise<{ aqi: number; statio
         const medianIndex = Math.floor(aqiValues.length / 2);
         const medianAqi = aqiValues[medianIndex];
         
-        // Use 85th percentile for city representation (represents high pollution areas ~242-251)
+        // Use 85th percentile for city representation (better reflects actual air quality)
+        // Median can be skewed low if city has many low-pollution suburban areas
+        // 85th percentile shows what most people experience in the city
         const percentile85Index = Math.floor(aqiValues.length * 0.85);
         const p85Aqi = aqiValues[percentile85Index];
         
@@ -228,12 +230,12 @@ async function fetchCityWideAQI(cityName: string): Promise<{ aqi: number; statio
         
         console.log(`  📊 City-wide AQI: ${validStations.length} stations found`);
         console.log(`     Max: ${maxAqi}, 85th percentile: ${p85Aqi}, Median: ${medianAqi}, Avg: ${avgAqi}`);
-        console.log(`     Using MEDIAN (${medianAqi}) to represent typical air quality`);
+        console.log(`     Using 85TH PERCENTILE (${p85Aqi}) to represent typical air quality`);
         
         return {
-          aqi: medianAqi,  // Use median to show typical air quality conditions
+          aqi: p85Aqi,  // Use 85th percentile for more realistic city-wide representation
           stationCount: validStations.length,
-          maxAqi: medianAqi
+          maxAqi: p85Aqi
         };
       } else {
         console.log(`  ⚠️  No valid stations after filtering`);
@@ -424,24 +426,16 @@ async function fetchFromWAQI(
       if (feedData && feedData.status === 'ok' && feedData.data) {
         const iaqi = feedData.data.iaqi || {};
         
-        // Calculate US AQI from pollutants
-        const pm25 = iaqi.pm25?.v || 0;
-        const pm10 = iaqi.pm10?.v || 0;
-        const o3 = iaqi.o3?.v || 0;
-        const no2 = iaqi.no2?.v || 0;
-        const so2 = iaqi.so2?.v || 0;
-        const co = iaqi.co?.v || 0;
+        // Use WAQI's pre-calculated overall AQI (already accounts for all pollutants correctly)
+        const usAqi = feedData.data.aqi || 0;
         
-        // Calculate sub-indices
-        const pm25UsAqi = pm25 > 0 ? calculateUsAQI(pm25, 'pm25') : 0;
-        const pm10UsAqi = pm10 > 0 ? calculateUsAQI(pm10, 'pm10') : 0;
-        const o3UsAqi = o3 > 0 ? calculateUsAQI(o3, 'o3') : 0;
-        const no2UsAqi = no2 > 0 ? calculateUsAQI(no2, 'no2') : 0;
-        const so2UsAqi = so2 > 0 ? calculateUsAQI(so2, 'so2') : 0;
-        const coUsAqi = co > 0 ? calculateUsAQI(co, 'co') : 0;
-        
-        // Overall AQI is maximum of all sub-indices
-        const usAqi = Math.max(pm25UsAqi, pm10UsAqi, o3UsAqi, no2UsAqi, so2UsAqi, coUsAqi);
+        // Get sub-indices for display purposes
+        const pm25UsAqi = iaqi.pm25?.v || 0;
+        const pm10UsAqi = iaqi.pm10?.v || 0;
+        const o3UsAqi = iaqi.o3?.v || 0;
+        const no2UsAqi = iaqi.no2?.v || 0;
+        const so2UsAqi = iaqi.so2?.v || 0;
+        const coUsAqi = iaqi.co?.v || 0;
         
         // Determine dominant pollutant
         let dominantPollutant = 'pm25';
@@ -455,18 +449,18 @@ async function fetchFromWAQI(
         const stationUrl = feedData.data.city?.url || `https://aqicn.org/city/@${stationUid}`;
         
         console.log(`  ✅ WAQI NEAREST STATION SUCCESS! US AQI: ${usAqi} (from sub-indices), Station: ${stationName}`);
-        console.log(`    PM2.5: ${pm25} µg/m³ (Sub-AQI ${pm25UsAqi}), PM10: ${pm10} µg/m³ (Sub-AQI ${pm10UsAqi})`);
+        console.log(`    PM2.5 Sub-AQI: ${pm25UsAqi}, PM10 Sub-AQI: ${pm10UsAqi}`);
         console.log(`    Dominant pollutant: ${dominantPollutant.toUpperCase()}`);
         
         return {
           aqi: usAqi,
           pollutants: {
-            pm25: { v: pm25 },
-            pm10: { v: pm10 },
-            o3: { v: o3 },
-            no2: { v: no2 },
-            so2: { v: so2 },
-            co: { v: co },
+            pm25: { v: pm25UsAqi },
+            pm10: { v: pm10UsAqi },
+            o3: { v: o3UsAqi },
+            no2: { v: no2UsAqi },
+            so2: { v: so2UsAqi },
+            co: { v: coUsAqi },
           },
           dominantPollutant,
           dataSource: `WAQI/aqicn.org (${nearestStationResult.distance.toFixed(1)} km away)`,
@@ -581,8 +575,10 @@ async function fetchFromWAQI(
     if (waqiData && waqiData.status === 'ok' && waqiData.data) {
       const iaqi = waqiData.data.iaqi || {};
       
-      // WAQI provides US AQI sub-indices for each pollutant
-      // Calculate overall AQI as the MAXIMUM of all pollutant sub-indices
+      // Use WAQI's pre-calculated overall AQI (already accounts for all pollutants correctly)
+      const usAqi = typeof waqiData.data.aqi === 'number' ? waqiData.data.aqi : 0;
+      
+      // Get sub-indices for display purposes
       const pm25UsAqi = iaqi.pm25?.v || 0;
       const pm10UsAqi = iaqi.pm10?.v || 0;
       const o3UsAqi = iaqi.o3?.v || 0;
@@ -590,16 +586,43 @@ async function fetchFromWAQI(
       const so2UsAqi = iaqi.so2?.v || 0;
       const coUsAqi = iaqi.co?.v || 0;
       
-      // Overall AQI = Maximum of all pollutant sub-indices
-      const usAqi = Math.max(pm25UsAqi, pm10UsAqi, o3UsAqi, no2UsAqi, so2UsAqi, coUsAqi);
+      // === VALIDATION STEP ===
+      const validationLat = waqiData.data.city?.geo?.[0];
+      const validationLon = waqiData.data.city?.geo?.[1];
+      let distKm = 0;
       
-      // Determine dominant pollutant
+      if (validationLat && validationLon) {
+        distKm = calculateDistance(lat, lon, validationLat, validationLon);
+        console.log(`  📏 Distance to WAQI station (${waqiData.data.city?.name}): ${distKm.toFixed(2)} km`);
+      }
+      
+      // Reject if station is too far (>25km). 
+      // Air quality can vary significantly over 25km, so falling back to simulated modeled data (Open-Meteo) 
+      // is often more accurate for specific rural/unmonitored locations rather than a city 50km+ away.
+      if (distKm > 25) {
+        console.log(`  ⚠️  WAQI station too far (${distKm.toFixed(1)}km > 25km). Rejecting to use local modeled data.`);
+        return null;
+      }
+
+      // Reject suspicious values even if close
+      if (usAqi < 5) {
+        console.log(`  ⚠️  AQI too low (<5) to be realistic for Indian context. Rejecting.`);
+        return null; 
+      }
+      
+      // Reject if ANY sub-index is > 500 (sensor error)
+      if (maxSubIndex > 800) {
+         console.log(`  ⚠️  WAQI data invalid: Extreme value detected (${maxSubIndex}). Sensor error likely. Rejecting.`);
+         return null;
+      }
+      
+      // Determine dominant pollutant from sub-indices
       let dominantPollutant = 'pm25';
-      if (usAqi === pm10UsAqi && pm10UsAqi > 0) dominantPollutant = 'pm10';
-      else if (usAqi === o3UsAqi && o3UsAqi > 0) dominantPollutant = 'o3';
-      else if (usAqi === no2UsAqi && no2UsAqi > 0) dominantPollutant = 'no2';
-      else if (usAqi === so2UsAqi && so2UsAqi > 0) dominantPollutant = 'so2';
-      else if (usAqi === coUsAqi && coUsAqi > 0) dominantPollutant = 'co';
+      if (maxSubIndex === pm10UsAqi && pm10UsAqi > 0) dominantPollutant = 'pm10';
+      else if (maxSubIndex === o3UsAqi && o3UsAqi > 0) dominantPollutant = 'o3';
+      else if (maxSubIndex === no2UsAqi && no2UsAqi > 0) dominantPollutant = 'no2';
+      else if (maxSubIndex === so2UsAqi && so2UsAqi > 0) dominantPollutant = 'so2';
+      else if (maxSubIndex === coUsAqi && coUsAqi > 0) dominantPollutant = 'co';
       
       // Convert sub-indices to concentrations for display
       const pm25Conc = pm25UsAqi > 0 ? usAqiToConcentration(pm25UsAqi, 'pm25') : 0;
@@ -609,8 +632,8 @@ async function fetchFromWAQI(
       const urlPath = waqiData.data.city?.url || '';
       const stationUrl = urlPath ? `https://aqicn.org${urlPath}` : '';
 
-      console.log(`  ✅ WAQI SUCCESS! Calculated US AQI: ${usAqi} (from sub-indices), Station: ${stationName}`);
-      console.log(`    PM2.5: ${pm25Conc} µg/m³ (Sub-AQI ${pm25UsAqi}), PM10: ${pm10Conc} µg/m³ (Sub-AQI ${pm10UsAqi})`);
+      console.log(`  ✅ WAQI SUCCESS! Using WAQI's calculated AQI: ${usAqi}, Station: ${stationName}`);
+      console.log(`    PM2.5 Sub-AQI: ${pm25UsAqi}, PM10 Sub-AQI: ${pm10UsAqi}`);
       console.log(`    Dominant pollutant: ${dominantPollutant.toUpperCase()}`);
 
       return {
@@ -899,14 +922,112 @@ export async function fetchAQIData(
     };
   }
 
-  // 2. Try OpenWeatherMap (recommended for global coverage)
+  // 2. Try OpenWeatherMap (Modeled Data)
+  console.log(`  📡 Trying OpenWeatherMap as primary fallback...`);
   const owmData = await fetchFromOpenWeatherMap(lat, lon, cityName);
   if (owmData) {
     console.log(`✅ Using OpenWeatherMap data`);
     return owmData;
   }
 
-  // 3. Fallback to Open-Meteo (always works)
-  console.log(`⚠️  All station sources failed, using Open-Meteo modeled data`);
-  return await fetchFromOpenMeteo(lat, lon);
+  // 3. Fallback to Open-Meteo
+  console.log(`  📡 Trying Open-Meteo as secondary fallback...`);
+  const meteoData = await fetchFromOpenMeteo(lat, lon);
+  if (meteoData && meteoData.aqi > 0) {
+    console.log(`✅ Using Open-Meteo modeled data`);
+    return meteoData;
+  }
+
+  console.log(`⚠️  All sources failed.`);
+  // As a last resort, return the Open-Meteo result even if it was 0 or invalid earlier,
+  // just to have *something*
+  return meteoData || null;
+}
+
+/**
+ * Test Cases - Debug utilities for testing AQI fetching
+ * Run with: npx ts-node -e "import { testKothakota, testMumbai, testNorthIndia, testRanchi } from './server/indianAqiService'; testKothakota();" 
+ */
+
+export async function testKothakota() {
+  const lat = 16.380612;
+  const lon = 77.939866;
+  const city = "Kothakota, wanaparthy, telangana";
+
+  console.log(`\nTesting AQI fetch for ${city} (${lat}, ${lon})`);
+  try {
+    const data = await fetchAQIData(lat, lon, city);
+    console.log('\n--- Result ---\n');
+    console.log(JSON.stringify(data, null, 2));
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+export async function testMumbai() {
+  // Mumbai coordinates
+  const lat = 19.0760;
+  const lon = 72.8777;
+
+  console.log(`\nTesting Mumbai (${lat}, ${lon})...`);
+  try {
+    const data = await fetchAQIData(lat, lon, 'Mumbai');
+    console.log(`\nResult for Mumbai:`);
+    console.log(`  AQI: ${data.aqi}`);
+    console.log(`  Source: ${data.dataSource}`);
+    console.log(`  Station: ${data.stationName}`);
+    console.log(`  Dominant Pollutant: ${data.dominantPollutant}`);
+    console.log(`  PM2.5: ${data.pollutants.pm25.v}`);
+    console.log(`  PM10: ${data.pollutants.pm10.v}`);
+  } catch (error) {
+    console.error(`Error testing Mumbai:`, error);
+  }
+}
+
+export async function testNorthIndia() {
+  const locations = [
+    { name: "Hardoi", lat: 27.42, lon: 80.12 },
+    { name: "Nangloi Jat", lat: 28.68, lon: 77.06 },
+    { name: "Gurgaon", lat: 28.45, lon: 77.02 }
+  ];
+
+  console.log("Starting North India tests...");
+
+  for (const loc of locations) {
+    console.log(`\nTesting ${loc.name}...`);
+    try {
+      const data = await fetchAQIData(loc.lat, loc.lon, loc.name);
+      console.log(`Result for ${loc.name}:`);
+      console.log(`  AQI: ${data.aqi}`);
+      console.log(`  Source: ${data.dataSource}`);
+      console.log(`  Station: ${data.stationName}`);
+    } catch (error) {
+      console.error(`Error testing ${loc.name}:`, error);
+    }
+  }
+}
+
+export async function testRanchi() {
+  // Ranchi coordinates (Jharkhand, India)
+  const locations = [
+    { name: "Ranchi", lat: 23.3441, lon: 85.3096 },
+    { name: "Ranchi City Center", lat: 23.34, lon: 85.31 },
+  ];
+
+  console.log("Testing Ranchi AQI...\n");
+
+  for (const loc of locations) {
+    console.log(`\nTesting ${loc.name} (${loc.lat}, ${loc.lon})`);
+    try {
+      const data = await fetchAQIData(loc.lat, loc.lon, loc.name);
+      console.log('\n--- Result ---');
+      console.log(`  AQI: ${data.aqi}`);
+      console.log(`  Data Source: ${data.dataSource}`);
+      console.log(`  Station: ${data.stationName}`);
+      console.log(`  Dominant Pollutant: ${data.dominantPollutant}`);
+      console.log(`  Pollutants:`, JSON.stringify(data.pollutants, null, 2));
+    } catch (error) {
+      console.error(`Error: ${error}`);
+    }
+  }
 }

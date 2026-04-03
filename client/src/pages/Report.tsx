@@ -247,76 +247,80 @@ export default function Report() {
                   </div>
                 </div>
               ) : (
-                <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={chartData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
-                    <defs>
-                      <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%" stopColor={getAQIColor(currentAQI)} stopOpacity={0.7}/>
-                        <stop offset="100%" stopColor={getAQIColor(currentAQI)} stopOpacity={0.1}/>
-                      </linearGradient>
-                    </defs>
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                    <XAxis 
-                      dataKey="name" 
-                      axisLine={false} 
-                      tickLine={false} 
-                      tick={{fill: '#94a3b8', fontSize: 12}} 
-                      interval="preserveStartEnd"
-                    />
-                    <YAxis 
-                      axisLine={false} 
-                      tickLine={false} 
-                      tick={{fill: '#94a3b8'}} 
-                      label={{ value: 'AQI', angle: -90, position: 'insideLeft', style: { fill: '#64748b' } }}
-                      domain={[0, 'auto']}
-                      allowDataOverflow={false}
-                    />
-                    {/* Current AQI reference line */}
-                    <ReferenceLine 
-                      y={currentAQI} 
-                      stroke={getAQIColor(currentAQI)} 
-                      strokeDasharray="5 5" 
-                      strokeWidth={2}
-                      label={{ 
-                        value: `Current: ${currentAQI}`, 
-                        position: 'right',
-                        fill: getAQIColor(currentAQI),
-                        fontSize: 12,
-                        fontWeight: 'bold'
-                      }}
-                    />
-                    <Tooltip 
-                      contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
-                      labelFormatter={(label) => `Time: ${label}`}
-                      formatter={(value: number, name: string, props: any) => {
-                        const aqi = Math.round(value);
-                        return [
-                          <div key="tooltip">
-                            <div style={{ color: getAQIColor(aqi), fontWeight: 'bold' }}>
-                              {aqi} AQI - {getAQICategory(aqi)}
-                            </div>
-                            {props.payload.originalForecast !== aqi && (
-                              <div style={{ fontSize: '11px', color: '#64748b', marginTop: '4px' }}>
-                                Base forecast: {Math.round(props.payload.originalForecast)}
-                              </div>
-                            )}
-                          </div>,
-                          'Air Quality Index'
-                        ];
-                      }}
-                    />
-                    <Area 
-                      type="monotone" 
-                      dataKey={metric} 
-                      stroke={getAQIColor(currentAQI)} 
-                      strokeWidth={2}
-                      fillOpacity={1} 
-                      fill="url(#colorValue)"
-                      dot={{ fill: getAQIColor(currentAQI), r: 3 }}
-                      activeDot={{ fill: getAQIColor(currentAQI), r: 5, strokeWidth: 0 }}
-                    />
-                  </AreaChart>
-                </ResponsiveContainer>
+                <div className="w-full h-[400px] overflow-x-auto overflow-y-hidden pb-4">
+                  <div style={{ minWidth: '600px', height: '100%' }}>
+                    <ResponsiveContainer width="100%" height="100%">
+                      <AreaChart data={chartData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+                        <defs>
+                          <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stopColor={getAQIColor(currentAQI)} stopOpacity={0.7}/>
+                            <stop offset="100%" stopColor={getAQIColor(currentAQI)} stopOpacity={0.1}/>
+                          </linearGradient>
+                        </defs>
+                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                        <XAxis 
+                          dataKey="name" 
+                          axisLine={false} 
+                          tickLine={false} 
+                          tick={{fill: '#94a3b8', fontSize: 12}} 
+                          interval="preserveStartEnd"
+                        />
+                        <YAxis 
+                          axisLine={false} 
+                          tickLine={false} 
+                          tick={{fill: '#94a3b8'}} 
+                          label={{ value: 'AQI', angle: -90, position: 'insideLeft', style: { fill: '#64748b' } }}
+                          domain={[0, 'auto']}
+                          allowDataOverflow={false}
+                        />
+                        {/* Current AQI reference line */}
+                        <ReferenceLine 
+                          y={currentAQI} 
+                          stroke={getAQIColor(currentAQI)} 
+                          strokeDasharray="5 5" 
+                          strokeWidth={2}
+                          label={{ 
+                            value: `Current: ${currentAQI}`, 
+                            position: 'right',
+                            fill: getAQIColor(currentAQI),
+                            fontSize: 12,
+                            fontWeight: 'bold'
+                          }}
+                        />
+                        <Tooltip 
+                          contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
+                          labelFormatter={(label) => `Time: ${label}`}
+                          formatter={(value: number, name: string, props: any) => {
+                            const aqi = Math.round(value);
+                            return [
+                              <div key="tooltip">
+                                <div style={{ color: getAQIColor(aqi), fontWeight: 'bold' }}>
+                                  {aqi} AQI - {getAQICategory(aqi)}
+                                </div>
+                                {props.payload.originalForecast !== aqi && (
+                                  <div style={{ fontSize: '11px', color: '#64748b', marginTop: '4px' }}>
+                                    Base forecast: {Math.round(props.payload.originalForecast)}
+                                  </div>
+                                )}
+                              </div>,
+                              'Air Quality Index'
+                            ];
+                          }}
+                        />
+                        <Area 
+                          type="monotone" 
+                          dataKey={metric} 
+                          stroke={getAQIColor(currentAQI)} 
+                          strokeWidth={2}
+                          fillOpacity={1} 
+                          fill="url(#colorValue)"
+                          dot={{ fill: getAQIColor(currentAQI), r: 3 }}
+                          activeDot={{ fill: getAQIColor(currentAQI), r: 5, strokeWidth: 0 }}
+                        />
+                      </AreaChart>
+                    </ResponsiveContainer>
+                  </div>
+                </div>
               )}
             </div>
 
