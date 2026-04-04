@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Leaf, Mail, Lock, User, ArrowLeft, Eye, EyeOff } from "lucide-react";
-import { Link, useLocation } from "wouter";
 import { queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { api } from "@shared/routes";
+import { Eye, EyeOff } from "lucide-react";
 
 export default function Signup() {
   const [, setLocation] = useLocation();
@@ -36,8 +36,8 @@ export default function Signup() {
         return;
       }
 
-      // Set user data in queryClient
-      queryClient.setQueryData(["/api/user"], data);
+      // Set user data in queryClient using the shared API path
+      queryClient.setQueryData([api.auth.me.path], data);
 
       toast({
         title: "Account created!",
