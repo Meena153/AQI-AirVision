@@ -148,7 +148,7 @@ export function Navigation() {
   ];
 
   return (
-    <nav className="sticky top-0 z-50 w-full border-b bg-white/80 backdrop-blur-md transition-all relative">
+    <nav className="sticky top-0 !z-[9999] w-full border-b bg-white/80 backdrop-blur-md transition-all relative">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
           <Link
