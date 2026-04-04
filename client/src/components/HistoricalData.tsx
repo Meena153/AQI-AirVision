@@ -225,7 +225,7 @@ export function HistoricalData({ lat, lon }: HistoricalDataProps) {
               <div className="text-2xl font-bold" style={{ color: getAQIColor(stats.avg) }}>
                 {stats.avg}
               </div>
-              <Badge variant="outline" className="mt-2 text-xs">
+              <Badge variant="outline" className="mt-2 text-[10px] sm:text-xs leading-tight h-auto py-1 px-2 text-center whitespace-normal max-w-full flex justify-center">
                 {getAQICategory(stats.avg)}
               </Badge>
             </motion.div>
@@ -240,7 +240,7 @@ export function HistoricalData({ lat, lon }: HistoricalDataProps) {
               <div className="text-2xl font-bold" style={{ color: getAQIColor(stats.max) }}>
                 {stats.max}
               </div>
-              <Badge variant="outline" className="mt-2 text-xs">
+              <Badge variant="outline" className="mt-2 text-[10px] sm:text-xs leading-tight h-auto py-1 px-2 text-center whitespace-normal max-w-full flex justify-center">
                 {getAQICategory(stats.max)}
               </Badge>
             </motion.div>
@@ -255,7 +255,7 @@ export function HistoricalData({ lat, lon }: HistoricalDataProps) {
               <div className="text-2xl font-bold" style={{ color: getAQIColor(stats.min) }}>
                 {stats.min}
               </div>
-              <Badge variant="outline" className="mt-2 text-xs">
+              <Badge variant="outline" className="mt-2 text-[10px] sm:text-xs leading-tight h-auto py-1 px-2 text-center whitespace-normal max-w-full flex justify-center">
                 {getAQICategory(stats.min)}
               </Badge>
             </motion.div>
