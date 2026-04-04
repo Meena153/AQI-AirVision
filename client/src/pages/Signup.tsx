@@ -37,15 +37,8 @@ export default function Signup() {
         return;
       }
 
-      // Set user data in queryClient using the shared API path
-      queryClient.setQueryData([api.auth.me.path], data);
-
-      toast({
-        title: "Account created!",
-        description: "Welcome to AirVision. You have been successfully registered.",
-      });
-
-      setLocation("/");
+      // Force a full page refresh on signup to ensure all components properly reset their state
+      window.location.href = "/";
     } catch (e) {
       setErr("Network error. Please try again.");
     } finally {

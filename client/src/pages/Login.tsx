@@ -52,15 +52,8 @@ export default function Login() {
         return;
       }
 
-      // Invalidate and refetch the user query to ensure authentication state is updated
-      queryClient.invalidateQueries({ queryKey: [api.auth.me.path] });
-      
-      toast({
-        title: "Welcome back!",
-        description: "Successfully signed in to your account.",
-      });
-
-      setLocation("/");
+      // Force a full page refresh to ensure session cookies and all components (like Navigation) are 100% in sync
+      window.location.href = "/";
     } catch (e) {
       setErr("Network error. Please try again.");
     } finally {
