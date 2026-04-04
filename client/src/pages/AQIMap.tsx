@@ -598,9 +598,9 @@ export default function AQIMap() {
       </Card>
 
       {/* Map Container */}
-      <div className="mb-2 flex items-center gap-2 text-blue-700 bg-blue-50 px-3 py-2 rounded-lg text-sm font-medium w-fit animate-pulse">
+      <div className="mb-2 flex items-center gap-2 text-blue-700 bg-blue-50 px-3 py-2 rounded-lg text-sm font-medium w-fit border border-blue-100">
         <Info className="w-4 h-4" />
-        <span>Tip: Tap (or long press on mobile) any circle to see the location name.</span>
+        <span>Tip: Long press on location marker to know that location name.</span>
       </div>
       <Card className="overflow-hidden">
         <CardContent className="p-0">
