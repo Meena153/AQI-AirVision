@@ -173,7 +173,7 @@ export default function AirQuality() {
         </div>
       </div>
       {/* Header / Location Info */}
-      <div className="bg-white border-b sticky top-16 z-40 shadow-sm">
+      <div className="bg-white border-b sticky top-16 z-30 shadow-sm">
         <div className="container mx-auto px-4 py-4 md:py-6 transition-all">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div className="space-y-1">
