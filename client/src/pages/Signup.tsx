@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { Leaf, Mail, Lock, User, ArrowLeft, Eye, EyeOff } from "lucide-react";
+import { Link, useLocation } from "wouter";
 import { queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { api } from "@shared/routes";
-import { Eye, EyeOff } from "lucide-react";
 
 export default function Signup() {
   const [, setLocation] = useLocation();
