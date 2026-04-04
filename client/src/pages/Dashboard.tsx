@@ -233,22 +233,24 @@ export default function Dashboard() {
 
       {/* Clear All Confirmation Dialog */}
       <AlertDialog open={showClearAllDialog} onOpenChange={setShowClearAllDialog}>
-        <AlertDialogContent>
+        <AlertDialogContent className="rounded-3xl border-none shadow-2xl">
           <AlertDialogHeader>
-            <AlertDialogTitle>Clear all locations?</AlertDialogTitle>
-            <AlertDialogDescription>
+            <AlertDialogTitle className="text-2xl font-display font-bold text-slate-900 text-center">Clear all locations?</AlertDialogTitle>
+            <AlertDialogDescription className="text-slate-600 text-center text-base">
               This will permanently delete all {locations?.length || 0} saved location{locations?.length !== 1 ? 's' : ''} from your dashboard. 
               This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogFooter className="flex flex-col gap-3 sm:flex-col sm:space-x-0 mt-6">
             <AlertDialogAction
               onClick={handleClearAll}
-              className="bg-red-600 hover:bg-red-700 focus:ring-red-600"
+              className="w-full rounded-full h-12 bg-red-600 hover:bg-red-700 text-white font-bold text-lg shadow-lg shadow-red-500/20 transition-all active:scale-95"
             >
               {isDeletingAll ? "Clearing..." : "Clear All"}
             </AlertDialogAction>
+            <AlertDialogCancel className="w-full rounded-full h-12 border-slate-200 text-slate-600 font-semibold transition-all active:scale-95">
+              Cancel
+            </AlertDialogCancel>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
