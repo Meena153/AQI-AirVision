@@ -9,7 +9,7 @@ import { HistoricalData } from "@/components/HistoricalData";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Heart, Share2, MapPin, AlertTriangle, BarChart3, RefreshCw, ShieldCheck, Info, ChevronDown, ArrowLeft, CloudRain, Cloud, Sun, CloudFog, CloudSnow, CloudDrizzle, Wind } from "lucide-react";
+import { Heart, Share2, MapPin, AlertTriangle, BarChart3, RefreshCw, ShieldCheck, Info, ChevronDown, ChevronUp, ArrowLeft, CloudRain, Cloud, Sun, CloudFog, CloudSnow, CloudDrizzle, Wind } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Link } from "wouter";
 import { useState, useEffect } from "react";
@@ -56,6 +56,7 @@ export default function AirQuality() {
   const { mutate: saveLocation, isPending: isSaving } = useCreateLocation();
   const { mutate: deleteLocation, isPending: isDeleting } = useDeleteLocation();
   const { toast } = useToast();
+  const [isHeaderMinimized, setIsHeaderMinimized] = useState(false);
 
   const handleRefresh = async () => {
     try {
@@ -173,131 +174,161 @@ export default function AirQuality() {
       </div>
       {/* Header / Location Info */}
       <div className="bg-white border-b sticky top-16 z-40 shadow-sm">
-        <div className="container mx-auto px-4 py-6">
+        <div className="container mx-auto px-4 py-4 md:py-6 transition-all">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <div className="space-y-2">
-              <div>
-                <h1 className="text-3xl md:text-4xl font-display font-bold text-slate-900 leading-tight">{data.location}</h1>
-                {data.fullAddress && data.fullAddress !== data.location && (
-                  <p className="text-sm text-muted-foreground mt-1 max-w-2xl">{data.fullAddress}</p>
-                )}
-              </div>
-              <div className="flex flex-wrap items-center gap-3 text-sm">
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <div className="flex items-center gap-1.5 text-muted-foreground cursor-help">
-                        <MapPin className="w-4 h-4" />
-                        <span className="font-mono">{data.lat.toFixed(6)}°N, {data.lon.toFixed(6)}°E</span>
-                      </div>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p className="text-xs">Hyperlocal precision coordinates</p>
-                      <p className="text-xs text-muted-foreground mt-1">Location name from OpenStreetMap data</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-                {data.neighborhood && (
-                  <Badge variant="secondary" className="text-xs">
-                    📍 {data.neighborhood}
-                  </Badge>
-                )}
-                {data.district && (
-                  <Badge variant="outline" className="text-xs">
-                    🏙️ {data.district}
-                  </Badge>
-                )}
-              </div>
-              <div className="text-xs text-muted-foreground">
-                Last updated: {lastUpdate.toLocaleTimeString('en-IN', { hour: 'numeric', minute: '2-digit', second: '2-digit', hour12: true, timeZone: 'Asia/Kolkata' })}
-              </div>
-            </div>
-            
-            <div className="flex gap-3 flex-wrap">
-              <Button 
-                variant="outline"
-                size="sm" 
-                className="gap-2 rounded-xl"
-                onClick={handleRefresh}
-              >
-                <RefreshCw className="w-4 h-4" />
-                Refresh Now
-              </Button>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="outline" size="sm" className="gap-2 rounded-xl">
-                    <Info className="w-4 h-4" />
-                    AQI Scale
-                    <ChevronDown className="w-3 h-3" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-80 p-4 z-50 bg-white shadow-xl" align="end" sideOffset={5}>
-                  <h3 className="font-bold text-base mb-3">AQI Scale</h3>
-                  <div className="space-y-2">
-                    <div className="flex items-center gap-3">
-                      <div className="w-16 h-8 rounded-md flex-shrink-0 bg-green-500"></div>
-                      <div className="flex-1">
-                        <div className="font-semibold text-sm">0-50</div>
-                        <div className="text-xs text-gray-600">Good</div>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <div className="w-16 h-8 rounded-md flex-shrink-0 bg-yellow-400"></div>
-                      <div className="flex-1">
-                        <div className="font-semibold text-sm">51-100</div>
-                        <div className="text-xs text-gray-600">Moderate</div>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <div className="w-16 h-8 rounded-md flex-shrink-0 bg-orange-500"></div>
-                      <div className="flex-1">
-                        <div className="font-semibold text-sm">101-150</div>
-                        <div className="text-xs text-gray-600">Unhealthy (Sensitive)</div>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <div className="w-16 h-8 rounded-md flex-shrink-0 bg-red-500"></div>
-                      <div className="flex-1">
-                        <div className="font-semibold text-sm">151-200</div>
-                        <div className="text-xs text-gray-600">Unhealthy</div>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <div className="w-16 h-8 rounded-md flex-shrink-0 bg-purple-600"></div>
-                      <div className="flex-1">
-                        <div className="font-semibold text-sm">201-300</div>
-                        <div className="text-xs text-gray-600">Severe</div>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <div className="w-16 h-8 rounded-md flex-shrink-0 bg-red-900"></div>
-                      <div className="flex-1">
-                        <div className="font-semibold text-sm">301-500</div>
-                        <div className="text-xs text-gray-600">Hazardous</div>
-                      </div>
-                    </div>
-                  </div>
-                </DropdownMenuContent>
-              </DropdownMenu>
-              <Button 
-                variant="outline"
-                size="sm" 
-                className={`gap-2 rounded-xl ${isSaved ? 'text-red-500 border-red-200 bg-red-50' : ''}`}
-                onClick={handleSaveToggle}
-                disabled={isSaving || isDeleting}
-              >
-                <Heart className={`w-4 h-4 ${isSaved ? 'fill-current' : ''}`} />
-                {isSaved ? "Saved" : "Save"}
-              </Button>
-              <Link href={city ? `/report?lat=${data.lat}&lon=${data.lon}&city=${encodeURIComponent(data.location)}` : `/report?lat=${data.lat}&lon=${data.lon}`}>
-                <Button variant="outline" size="sm" className="gap-2 rounded-xl">
-                  <BarChart3 className="w-4 h-4" /> Report
+            <div className="space-y-1">
+              <div className="flex items-center gap-3">
+                <h1 className="text-2xl md:text-4xl font-display font-bold text-slate-900 leading-tight">
+                  {data.location}
+                </h1>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8 rounded-full hover:bg-slate-100 md:hidden"
+                  onClick={() => setIsHeaderMinimized(!isHeaderMinimized)}
+                >
+                  {isHeaderMinimized ? (
+                    <ChevronDown className="w-5 h-5 text-slate-600" />
+                  ) : (
+                    <ChevronUp className="w-5 h-5 text-slate-600" />
+                  )}
                 </Button>
-              </Link>
-              {/* <Button variant="outline" size="sm" className="gap-2 rounded-xl">
-                <Share2 className="w-4 h-4" /> Share
-              </Button> */}
+              </div>
+
+              {!isHeaderMinimized && (
+                <>
+                  {data.fullAddress && data.fullAddress !== data.location && (
+                    <p className="text-sm text-muted-foreground mt-1 max-w-2xl">{data.fullAddress}</p>
+                  )}
+                  <div className="flex flex-wrap items-center gap-3 text-sm mt-2">
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <div className="flex items-center gap-1.5 text-muted-foreground cursor-help">
+                            <MapPin className="w-4 h-4" />
+                            <span className="font-mono">
+                              {data.lat.toFixed(6)}°N, {data.lon.toFixed(6)}°E
+                            </span>
+                          </div>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p className="text-xs">Hyperlocal precision coordinates</p>
+                          <p className="text-xs text-muted-foreground mt-1">
+                            Location name from OpenStreetMap data
+                          </p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                    {data.neighborhood && (
+                      <Badge variant="secondary" className="text-xs">
+                        📍 {data.neighborhood}
+                      </Badge>
+                    )}
+                    {data.district && (
+                      <Badge variant="outline" className="text-xs">
+                        🏙️ {data.district}
+                      </Badge>
+                    )}
+                  </div>
+                  <div className="text-xs text-muted-foreground">
+                    Last updated:{" "}
+                    {lastUpdate.toLocaleTimeString("en-IN", {
+                      hour: "numeric",
+                      minute: "2-digit",
+                      second: "2-digit",
+                      hour12: true,
+                      timeZone: "Asia/Kolkata",
+                    })}
+                  </div>
+                </>
+              )}
             </div>
+
+            {( !isHeaderMinimized || window.innerWidth > 768 ) && (
+              <div className="flex gap-2 flex-wrap sm:gap-3 transition-opacity">
+                <Button variant="outline" size="sm" className="gap-2 rounded-xl" onClick={handleRefresh}>
+                  <RefreshCw className="w-4 h-4" />
+                  Refresh
+                </Button>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline" size="sm" className="gap-2 rounded-xl">
+                      <Info className="w-4 h-4" />
+                      AQI Scale
+                      <ChevronDown className="w-3 h-3" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent className="w-80 p-4 z-50 bg-white shadow-xl" align="end" sideOffset={5}>
+                    <h3 className="font-bold text-base mb-3">AQI Scale</h3>
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-3">
+                        <div className="w-16 h-8 rounded-md flex-shrink-0 bg-green-500"></div>
+                        <div className="flex-1">
+                          <div className="font-semibold text-sm">0-50</div>
+                          <div className="text-xs text-gray-600">Good</div>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <div className="w-16 h-8 rounded-md flex-shrink-0 bg-yellow-400"></div>
+                        <div className="flex-1">
+                          <div className="font-semibold text-sm">51-100</div>
+                          <div className="text-xs text-gray-600">Moderate</div>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <div className="w-16 h-8 rounded-md flex-shrink-0 bg-orange-500"></div>
+                        <div className="flex-1">
+                          <div className="font-semibold text-sm">101-150</div>
+                          <div className="text-xs text-gray-600">Unhealthy (Sensitive)</div>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <div className="w-16 h-8 rounded-md flex-shrink-0 bg-red-500"></div>
+                        <div className="flex-1">
+                          <div className="font-semibold text-sm">151-200</div>
+                          <div className="text-xs text-gray-600">Unhealthy</div>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <div className="w-16 h-8 rounded-md flex-shrink-0 bg-purple-600"></div>
+                        <div className="flex-1">
+                          <div className="font-semibold text-sm">201-300</div>
+                          <div className="text-xs text-gray-600">Severe</div>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <div className="w-16 h-8 rounded-md flex-shrink-0 bg-red-900"></div>
+                        <div className="flex-1">
+                          <div className="font-semibold text-sm">301-500</div>
+                          <div className="text-xs text-gray-600">Hazardous</div>
+                        </div>
+                      </div>
+                    </div>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className={`gap-2 rounded-xl ${isSaved ? "text-red-500 border-red-200 bg-red-50" : ""}`}
+                  onClick={handleSaveToggle}
+                  disabled={isSaving || isDeleting}
+                >
+                  <Heart className={`w-4 h-4 ${isSaved ? "fill-current" : ""}`} />
+                  {isSaved ? "Saved" : "Save"}
+                </Button>
+                <Link
+                  href={
+                    city
+                      ? `/report?lat=${data.lat}&lon=${data.lon}&city=${encodeURIComponent(data.location)}`
+                      : `/report?lat=${data.lat}&lon=${data.lon}`
+                  }
+                >
+                  <Button variant="outline" size="sm" className="gap-2 rounded-xl">
+                    <BarChart3 className="w-4 h-4" /> Report
+                  </Button>
+                </Link>
+              </div>
+            )}
           </div>
         </div>
       </div>
