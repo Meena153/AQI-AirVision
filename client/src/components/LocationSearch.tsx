@@ -337,21 +337,29 @@ export function LocationSearch({
 
       {/* Authentication Required Dialog */}
       <AlertDialog open={showAuthDialog} onOpenChange={setShowAuthDialog}>
-        <AlertDialogContent>
+        <AlertDialogContent className="rounded-3xl border-none shadow-2xl">
           <AlertDialogHeader>
-            <AlertDialogTitle>Login Required</AlertDialogTitle>
-            <AlertDialogDescription>
+            <AlertDialogTitle className="text-2xl font-display font-bold text-slate-900 text-center">Login Required</AlertDialogTitle>
+            <AlertDialogDescription className="text-slate-600 text-center text-base">
               You need to be logged in to check air quality data. Please sign up or log in to continue.
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={() => setLocation("/signup")}>
-              Sign Up
-            </AlertDialogAction>
-            <AlertDialogAction onClick={() => setLocation("/login")} className="ml-2">
+          <AlertDialogFooter className="flex flex-col gap-3 sm:flex-col sm:space-x-0 mt-6">
+            <AlertDialogAction 
+              onClick={() => setLocation("/login")}
+              className="w-full rounded-full h-12 bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-lg shadow-lg shadow-emerald-500/20 transition-all active:scale-95"
+            >
               Login
             </AlertDialogAction>
+            <AlertDialogAction 
+              onClick={() => setLocation("/signup")}
+              className="w-full rounded-full h-12 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 font-bold text-lg border-none transition-all active:scale-95"
+            >
+              Sign Up
+            </AlertDialogAction>
+            <AlertDialogCancel className="w-full rounded-full h-12 border-slate-200 text-slate-600 font-semibold transition-all active:scale-95">
+              Cancel
+            </AlertDialogCancel>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
