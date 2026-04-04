@@ -62,7 +62,7 @@ export default function Report() {
             <h1 className="text-3xl font-display font-bold mb-4">Air Quality Reports</h1>
             <p className="text-muted-foreground mb-6">View detailed air quality reports for specific locations.</p>
             <p className="text-sm text-muted-foreground">
-              To view a report, navigate to a location's air quality page or dashboard and click "View Report".
+              To view a report, navigate to a location's air quality page or dashboard and click "Report".
             </p>
           </div>
         </div>
