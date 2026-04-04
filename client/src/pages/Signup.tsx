@@ -1,11 +1,14 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Leaf, Mail, Lock, User, ArrowLeft } from "lucide-react";
+import { Leaf, Mail, Lock, User, ArrowLeft, Eye, EyeOff } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { queryClient } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
 
 export default function Signup() {
   const [, setLocation] = useLocation();
+  const { toast } = useToast();
+  const [showPassword, setShowPassword] = useState(false);
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -35,6 +38,11 @@ export default function Signup() {
 
       // Set user data in queryClient
       queryClient.setQueryData(["/api/user"], data);
+
+      toast({
+        title: "Account created!",
+        description: "Welcome to AirVision. You have been successfully registered.",
+      });
 
       setLocation("/");
     } catch (e) {
@@ -100,15 +108,26 @@ export default function Signup() {
 
           {/* Password */}
           <label className="text-sm font-medium text-slate-700">Password</label>
-          <div className="mt-2 mb-4 flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2">
-            <Lock className="w-5 h-5 text-slate-400" />
+          <div className="mt-2 mb-4 flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 focus-within:ring-2 focus-within:ring-emerald-500/20 focus-within:border-emerald-500 transition-all">
+            <Lock className="w-5 h-5 text-slate-400 shrink-0" />
             <input
-              type="password"
+              type={showPassword ? "text" : "password"}
               className="w-full outline-none bg-transparent text-slate-900"
               placeholder="Min 6 characters"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="p-1 hover:bg-slate-100 rounded-md transition-colors"
+            >
+              {showPassword ? (
+                <EyeOff className="w-4 h-4 text-slate-400" />
+              ) : (
+                <Eye className="w-4 h-4 text-slate-400" />
+              )}
+            </button>
           </div>
 
           {err && (
