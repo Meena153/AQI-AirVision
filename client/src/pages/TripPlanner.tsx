@@ -13,6 +13,15 @@ import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { Link, useLocation } from "wouter";
 
+function getAQIColor(aqi: number): string {
+  if (aqi <= 50) return "text-emerald-500";
+  if (aqi <= 100) return "text-yellow-500";
+  if (aqi <= 150) return "text-orange-500";
+  if (aqi <= 200) return "text-red-500";
+  if (aqi <= 300) return "text-purple-500";
+  return "text-rose-900";
+}
+
 export default function TripPlanner() {
   const [location, setLocation] = useLocation();
   const resultsRef = useRef<HTMLDivElement>(null);
@@ -252,7 +261,7 @@ export default function TripPlanner() {
                       <div className="text-[10px] text-muted-foreground mb-1 uppercase font-semibold">Departure</div>
                       <div className="font-bold text-xs mb-1 truncate">{plan.start.location}</div>
                       <div className="flex items-center gap-1">
-                        <div className="text-xl font-bold text-red-600">{plan.start.airQuality.aqi}</div>
+                        <div className={`text-xl font-bold ${getAQIColor(plan.start.airQuality.aqi)}`}>{plan.start.airQuality.aqi}</div>
                         <div className="text-[10px] text-muted-foreground">AQI</div>
                       </div>
                     </div>
@@ -261,7 +270,7 @@ export default function TripPlanner() {
                       <div className="text-[10px] text-muted-foreground mb-1 uppercase font-semibold">Destination</div>
                       <div className="font-bold text-xs mb-1 truncate">{plan.end.location}</div>
                       <div className="flex items-center gap-1">
-                        <div className="text-xl font-bold text-red-600">{plan.end.airQuality.aqi}</div>
+                        <div className={`text-xl font-bold ${getAQIColor(plan.end.airQuality.aqi)}`}>{plan.end.airQuality.aqi}</div>
                         <div className="text-[10px] text-muted-foreground">AQI</div>
                       </div>
                     </div>
