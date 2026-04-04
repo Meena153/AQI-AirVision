@@ -25,7 +25,7 @@ export default function Home() {
     <div className="min-h-screen bg-gradient-to-b from-blue-50/50 to-white">
       {/* Hero Section */}
       <section className="relative pt-12 pb-16 overflow-hidden">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-0">
           <motion.div 
             initial="hidden"
             animate="visible"
