@@ -598,6 +598,10 @@ export default function AQIMap() {
       </Card>
 
       {/* Map Container */}
+      <div className="mb-2 flex items-center gap-2 text-blue-700 bg-blue-50 px-3 py-2 rounded-lg text-sm font-medium w-fit animate-pulse">
+        <Info className="w-4 h-4" />
+        <span>Tip: Tap (or long press on mobile) any circle to see the location name.</span>
+      </div>
       <Card className="overflow-hidden">
         <CardContent className="p-0">
           {!currentLocation ? (
@@ -668,8 +672,8 @@ export default function AQIMap() {
               <h4 className="font-semibold text-blue-900 mb-1">How to use the map</h4>
               <ul className="text-sm text-blue-800 space-y-1 list-disc list-inside">
                 <li>The map shows <strong>all AQI monitoring stations within 100km</strong> of your current location</li>
-                <li>Each marker shows the AQI value and is color-coded by category (Good, Moderate, Unhealthy, Severe, Hazardous)</li>
-                <li>Category badges show which AQI levels are present in your area</li>
+                <li><strong>Tap (or long press on mobile) any circle</strong> to see the location name and current AQI level</li>
+                <li>Each marker shows the AQI value and is color-coded by category (Good to Hazardous)</li>
                 <li>Click on any marker to see detailed air quality information for that location</li>
                 <li>Use the "Locate Me/Hyperlocal area" button to refresh your location and reload nearby stations</li>
               </ul>
